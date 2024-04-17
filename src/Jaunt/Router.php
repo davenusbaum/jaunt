@@ -77,7 +77,7 @@ class Router
     public function route($method, $path): ?Route
     {
         $parts = array_reverse(explode('/', $path));
-        if (count($parts) > 1 && $parts[0] === null) {
+        if (count($parts) > 1 && empty($parts[0])) {
             array_pop($parts);
         }
         $route = new Route();
