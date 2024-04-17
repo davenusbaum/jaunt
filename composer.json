@@ -1,0 +1,25 @@
+{
+  "name": "davenusbaum/jaunt",
+  "type": "library",
+  "description": " A tree based router",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "David Nusbaum",
+      "email": "david.nusbaum@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">=7.0 < 10"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jaunt\\": "src/Jaunt/"
+    }
+  }
+}
