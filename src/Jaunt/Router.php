@@ -90,7 +90,7 @@ class Router
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current['{param}']) || isset($current['{param_name}'])) {
-                $route->addParam($current['{param_name}'], $part);
+                $route->addParam(substr($current['{param_name}'], 1), $part);
                 $current = $current['{param}'];
             } else {
                 return null;
