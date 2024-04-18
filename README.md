@@ -1,13 +1,15 @@
 # jaunt
 Jaunt, a tree based router for PHP.
 
-Jaunt is an experiment, a working experiment, but still an experiment.
+Jaunt is a tree based router for PHP inspired by the (not tree based) router from [express.js](). 
 
-[Why Jaunt](why.md)
+The world probably does not need yet another PHP router, but I have [my reasons](why.md) for building one.
 
-## Usage
+## Example Usage
 ```
 <?php
+
+use Jaunt\Router;
 
 require '/path/to/vendor/autoload.php';
 
