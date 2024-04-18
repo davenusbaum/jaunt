@@ -88,34 +88,37 @@ class Router
      * Returns the route that matches the provided method and path
      * @param $method
      * @param $path
-     * @return Route|null
+     * @return array|null
      */
-    public function route($method, $path): ?Route
+    public function route($method, $path)
     {
         $parts = array_reverse(explode('/', $path));
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
         }
-        $route = new Route();
+        $route = [
+            'stack' => [],
+            'params' => []
+        ];
         $current = $this->root;
         while (($part = array_pop($parts)) !== null) {
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current['{param}']) || isset($current['{param_name}'])) {
-                $route->addParam(substr($current['{param_name}'], 1), $part);
+                $route['params'][substr($current['{param_name}'], 1)] =  $part;
                 $current = $current['{param}'];
             } else {
                 return null;
             }
             if (isset($current["{middleware}"])) {
-                $route->addCallbacks($current["{middleware}"]);
+                array_push($route['stack'], $current["{middleware}"]);
             }
         }
         $matched = false;
         if (isset($current["{controllers}"])) {
             foreach ($current["{controllers}"] as $callback) {
                 if ($callback[0] == 'ALL' || strpos($callback[0], $method) !== false) {
-                    $route->addCallback($callback[1]);
+                    $route['stack'] = $callback[1];
                     $matched = true;
                 }
             }
