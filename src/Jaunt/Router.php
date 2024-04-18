@@ -118,7 +118,7 @@ class Router
         if (isset($current["{controllers}"])) {
             foreach ($current["{controllers}"] as $callback) {
                 if ($callback[0] == 'ALL' || strpos($callback[0], $method) !== false) {
-                    $route['stack'] = $callback[1];
+                    $route['stack'][] = $callback[1];
                     $matched = true;
                 }
             }
