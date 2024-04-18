@@ -7,6 +7,10 @@ class Router
     protected $current = null;
     protected $root = [];
 
+    public function __construct($tree = []) {
+        $this->root = $tree;
+    }
+
     public function all($path, $callback): Router {
         $this->addRoute('ALL', $path, $callback);
         return $this;
@@ -70,6 +74,14 @@ class Router
             $this->current[$segment] = [];
         }
         $this->current =& $this->current[$segment];
+    }
+
+    /**
+     * Returns the assembled route tree
+     * @return array|mixed
+     */
+    public function getRouteTree() {
+        return $this->root;
     }
 
     /**
