@@ -58,7 +58,7 @@ class Router
     }
 
     protected function addParam($param){
-        if (!isset($this->current['param'])) {
+        if (!isset($this->current['{param}'])) {
             $this->current['{param}'] = [];
             $this->current['{param_name}'] = $param;
         }

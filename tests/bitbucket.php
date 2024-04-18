@@ -188,7 +188,7 @@ $router->get('/workspaces/:workspace/projects', 'callback');
 $router->get('/workspaces/:workspace/projects/:project_key', 'callback');
 $router->get('/workspaces/:workspace/search/code', 'callback');
 
-$route = $router->route('GET', '/workspaces/:workspace/search/code');
+$route = $router->route('GET',  '/repositories/ringo/john/pipelines/paul/steps/george/test_reports/test_cases/ringo/test_case_reasons');
 echo "Time required = " . (microtime ( true ) - $test_time_start) . " seconds\n";
 echo "Memory required = " . sprintf('%.2f',((memory_get_usage () - $test_mem_start)/1048576)) . " MB\n";
 print_r($route);
