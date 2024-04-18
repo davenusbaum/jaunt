@@ -50,7 +50,11 @@ class Router
      * @return void
      */
     protected function addCallback($method, $callback) {
-        $this->current['{callbacks}'][] = [$method, $callback];
+        if ($method == 'USE') {
+            $this->current['{middleware}'][] = $callback;
+        } else {
+            $this->current['{controllers}'][] = [$method,$callback];
+        }
     }
 
     protected function addParam($param){
@@ -77,7 +81,7 @@ class Router
     public function route($method, $path): ?Route
     {
         $parts = array_reverse(explode('/', $path));
-        if (count($parts) > 1 && empty($parts[0])) {
+        if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
         }
         $route = new Route();
@@ -91,17 +95,22 @@ class Router
             } else {
                 return null;
             }
-            if (isset($current["{callbacks}"])) {
-                foreach ($current["{callbacks}"] as $callback) {
-                    if ($callback[0] == 'USE' || $callback[0] == 'ALL' || strpos($callback[0], $method) !== false) {
-                        $route->addCallback($callback);
-                    }
+            if (isset($current["{middleware}"])) {
+                $route->addCallbacks($current["{middleware}"]);
+            }
+        }
+        $matched = false;
+        if (isset($current["{controllers}"])) {
+            foreach ($current["{controllers}"] as $callback) {
+                if ($callback[0] == 'ALL' || strpos($callback[0], $method) !== false) {
+                    $route->addCallback($callback[1]);
+                    $matched = true;
                 }
             }
-       }
-       if ($route->hasController()) {
+        }
+        if ($matched) {
            return $route;
-       }
-       return null;
+        }
+        return null;
     }
 }

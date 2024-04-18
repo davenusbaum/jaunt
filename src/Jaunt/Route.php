@@ -4,28 +4,29 @@ namespace Jaunt;
 
 class Route
 {
-    protected $stack;
+    protected $stack = [];
     protected $params = [];
-    protected $hasController = false;
 
     /**
      * Add a callback to the stack
-     * @param array $callback [{method},{callback}]
+     * @param $callback
      * @return void
      */
     public function addCallback($callback) {
-        if ($callback[0] != 'USE') {
-            $this->hasController = true;
-        }
         $this->stack[] = $callback;
+    }
+
+    /**
+     * Add an array of callbacks to the stack
+     * @param array $callbacks
+     * @return void
+     */
+    public function addCallbacks($callbacks) {
+        array_push($this->stack, $callbacks);
     }
 
     public function addParam($name, $value) {
         $this->params[$name] = $value;
-    }
-
-    public function hasController() {
-        return $this->hasController;
     }
 
     public function getParams() {
