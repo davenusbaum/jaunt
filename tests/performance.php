@@ -4,22 +4,212 @@ use Jaunt\Router;
 
 include 'bootstrap.php';
 
-$test_mem_start = memory_get_usage ();
-$test_time_start = microtime ( true );
-$router = (new Router())
-    ->get('/', 'FrontPage')
-    ->use('/account', 'AccountAccess')
-    ->get('account/:account_id', 'Account')
-    ->post('account/:account_id', 'Account')
-    ->get('accounts', 'Account')
-    ->get('events/:account_id', 'Event')
-    ->get('event/:event_id/attendees', ['Event','attendees'])
-    ->get('event/:event_id/workers', ['Event','workers'])
-    ->get('accommodations/:account_id', 'Accommodations')
-    ->get('account/:account_id/badges', 'Badges')
-    ->get('/account/:account_id/badges/progress', 'BadgeProgress');
+$iterations = 100000;
 
-$route = $router->route('GET', 'account/49728/badges/progress');
-echo "Time required = " . (microtime ( true ) - $test_time_start) . " seconds\n";
-echo "Memory required = " . sprintf('%.2f',((memory_get_usage () - $test_mem_start)/1048576)) . " MB\n";
+$total_build_time = 0;
+$total_build_memory = 0;
+$total_route_time = 0;
+$total_route_memory = 0;
+
+for ($i=0; $i<$iterations; $i++) {
+    $test_mem_start = memory_get_usage();
+    $test_time_start = microtime(true);
+
+    $router = new Router();
+    $router->get('/addon', 'addon');
+    $router->get('/addon/linkers', 'addon_linkers');
+    $router->get('/addon/linkers/{linker_key}', 'addon_linkers_linker_key');
+    $router->get('/addon/linkers/{linker_key}/values', 'addon_linkers_linker_key_values');
+    $router->get('/addon/linkers/{linker_key}/values/{value_id}', 'addon_linkers_linker_key_values_value_id');
+    $router->get('/hook_events', 'hook_events');
+    $router->get('/hook_events/{subject_type}', 'hook_events_subject_type');
+    $router->get('/pullrequests/{selected_user}', 'pullrequests_selected_user');
+    $router->get('/repositories', 'repositories');
+    $router->get('/repositories/{workspace}', 'repositories_workspace');
+    $router->get('/repositories/{workspace}/{repo_slug}', 'repositories_workspace_repo_slug');
+    $router->get('/repositories/{workspace}/{repo_slug}/branch-restrictions', 'repositories_workspace_repo_slug_branch_restrictions');
+    $router->get('/repositories/{workspace}/{repo_slug}/branch-restrictions/{id}', 'repositories_workspace_repo_slug_branch_restrictions_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/branching-model', 'repositories_workspace_repo_slug_branching_model');
+    $router->get('/repositories/{workspace}/{repo_slug}/branching-model/settings', 'repositories_workspace_repo_slug_branching_model_settings');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}', 'repositories_workspace_repo_slug_commit_commit');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/approve', 'repositories_workspace_repo_slug_commit_commit_approve');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/comments', 'repositories_workspace_repo_slug_commit_commit_comments');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/comments/{comment_id}', 'repositories_workspace_repo_slug_commit_commit_comments_comment_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/properties/{app_key}/{property_name}', 'repositories_workspace_repo_slug_commit_commit_properties_app_key_property_name');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/pullrequests', 'repositories_workspace_repo_slug_commit_commit_pullrequests');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/reports', 'repositories_workspace_repo_slug_commit_commit_reports');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/reports/{reportId}', 'repositories_workspace_repo_slug_commit_commit_reports_reportId');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/reports/{reportId}/annotations', 'repositories_workspace_repo_slug_commit_commit_reports_reportId_annotations');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/reports/{reportId}/annotations/{annotationId}', 'repositories_workspace_repo_slug_commit_commit_reports_reportId_annotations_annotationId');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/statuses', 'repositories_workspace_repo_slug_commit_commit_statuses');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/statuses/build', 'repositories_workspace_repo_slug_commit_commit_statuses_build');
+    $router->get('/repositories/{workspace}/{repo_slug}/commit/{commit}/statuses/build/{key}', 'repositories_workspace_repo_slug_commit_commit_statuses_build_key');
+    $router->get('/repositories/{workspace}/{repo_slug}/commits', 'repositories_workspace_repo_slug_commits');
+    $router->get('/repositories/{workspace}/{repo_slug}/commits/{revision}', 'repositories_workspace_repo_slug_commits_revision');
+    $router->get('/repositories/{workspace}/{repo_slug}/components', 'repositories_workspace_repo_slug_components');
+    $router->get('/repositories/{workspace}/{repo_slug}/components/{component_id}', 'repositories_workspace_repo_slug_components_component_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/default-reviewers', 'repositories_workspace_repo_slug_default_reviewers');
+    $router->get('/repositories/{workspace}/{repo_slug}/default-reviewers/{target_username}', 'repositories_workspace_repo_slug_default_reviewers_target_username');
+    $router->get('/repositories/{workspace}/{repo_slug}/deploy-keys', 'repositories_workspace_repo_slug_deploy_keys');
+    $router->get('/repositories/{workspace}/{repo_slug}/deploy-keys/{key_id}', 'repositories_workspace_repo_slug_deploy_keys_key_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/deployments/', 'repositories_workspace_repo_slug_deployments');
+    $router->get('/repositories/{workspace}/{repo_slug}/deployments/{deployment_uuid}', 'repositories_workspace_repo_slug_deployments_deployment_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/deployments_config/environments/{environment_uuid}/variables', 'repositories_workspace_repo_slug_deployments_config_environments_environment_uuid_variables');
+    $router->get('/repositories/{workspace}/{repo_slug}/deployments_config/environments/{environment_uuid}/variables/{variable_uuid}', 'repositories_workspace_repo_slug_deployments_config_environments_environment_uuid_variables_variable_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/diff/{spec}', 'repositories_workspace_repo_slug_diff_spec');
+    $router->get('/repositories/{workspace}/{repo_slug}/diffstat/{spec}', 'repositories_workspace_repo_slug_diffstat_spec');
+    $router->get('/repositories/{workspace}/{repo_slug}/downloads', 'repositories_workspace_repo_slug_downloads');
+    $router->get('/repositories/{workspace}/{repo_slug}/downloads/{filename}', 'repositories_workspace_repo_slug_downloads_filename');
+    $router->get('/repositories/{workspace}/{repo_slug}/environments/', 'repositories_workspace_repo_slug_environments');
+    $router->get('/repositories/{workspace}/{repo_slug}/environments/{environment_uuid}', 'repositories_workspace_repo_slug_environments_environment_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/environments/{environment_uuid}/changes/', 'repositories_workspace_repo_slug_environments_environment_uuid_changes');
+    $router->get('/repositories/{workspace}/{repo_slug}/filehistory/{commit}/{path}', 'repositories_workspace_repo_slug_filehistory_commit_path');
+    $router->get('/repositories/{workspace}/{repo_slug}/forks', 'repositories_workspace_repo_slug_forks');
+    $router->get('/repositories/{workspace}/{repo_slug}/hooks', 'repositories_workspace_repo_slug_hooks');
+    $router->get('/repositories/{workspace}/{repo_slug}/hooks/{uid}', 'repositories_workspace_repo_slug_hooks_uid');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues', 'repositories_workspace_repo_slug_issues');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/export', 'repositories_workspace_repo_slug_issues_export');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/export/{repo_name}-issues-{task_id}.zip', 'repositories_workspace_repo_slug_issues_export_repo_name_issues_task_id_zip');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/import', 'repositories_workspace_repo_slug_issues_import');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}', 'repositories_workspace_repo_slug_issues_issue_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/attachments', 'repositories_workspace_repo_slug_issues_issue_id_attachments');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/attachments/{path}', 'repositories_workspace_repo_slug_issues_issue_id_attachments_path');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/changes', 'repositories_workspace_repo_slug_issues_issue_id_changes');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/changes/{change_id}', 'repositories_workspace_repo_slug_issues_issue_id_changes_change_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/comments', 'repositories_workspace_repo_slug_issues_issue_id_comments');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/comments/{comment_id}', 'repositories_workspace_repo_slug_issues_issue_id_comments_comment_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/vote', 'repositories_workspace_repo_slug_issues_issue_id_vote');
+    $router->get('/repositories/{workspace}/{repo_slug}/issues/{issue_id}/watch', 'repositories_workspace_repo_slug_issues_issue_id_watch');
+    $router->get('/repositories/{workspace}/{repo_slug}/merge-base/{revspec}', 'repositories_workspace_repo_slug_merge_base_revspec');
+    $router->get('/repositories/{workspace}/{repo_slug}/milestones', 'repositories_workspace_repo_slug_milestones');
+    $router->get('/repositories/{workspace}/{repo_slug}/milestones/{milestone_id}', 'repositories_workspace_repo_slug_milestones_milestone_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/patch/{spec}', 'repositories_workspace_repo_slug_patch_spec');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines-config/caches/', 'repositories_workspace_repo_slug_pipelines_config_caches');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines-config/caches/{cache_uuid}', 'repositories_workspace_repo_slug_pipelines_config_caches_cache_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines-config/caches/{cache_uuid}/content-uri', 'repositories_workspace_repo_slug_pipelines_config_caches_cache_uuid_content_uri');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/', 'repositories_workspace_repo_slug_pipelines');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}/log', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid_log');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}/logs/{log_uuid}', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid_logs_log_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid_test_reports');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports/test_cases', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid_test_reports_test_cases');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports/test_cases/{test_case_uuid}/test_case_reasons', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_steps_step_uuid_test_reports_test_cases_test_case_uuid_test_case_reasons');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines/{pipeline_uuid}/stopPipeline', 'repositories_workspace_repo_slug_pipelines_pipeline_uuid_stopPipeline');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config', 'repositories_workspace_repo_slug_pipelines_config');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/build_number', 'repositories_workspace_repo_slug_pipelines_config_build_number');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/schedules/', 'repositories_workspace_repo_slug_pipelines_config_schedules');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/schedules/{schedule_uuid}', 'repositories_workspace_repo_slug_pipelines_config_schedules_schedule_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/schedules/{schedule_uuid}/executions/', 'repositories_workspace_repo_slug_pipelines_config_schedules_schedule_uuid_executions');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/ssh/key_pair', 'repositories_workspace_repo_slug_pipelines_config_ssh_key_pair');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/ssh/known_hosts/', 'repositories_workspace_repo_slug_pipelines_config_ssh_known_hosts');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/ssh/known_hosts/{known_host_uuid}', 'repositories_workspace_repo_slug_pipelines_config_ssh_known_hosts_known_host_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/variables/', 'repositories_workspace_repo_slug_pipelines_config_variables');
+    $router->get('/repositories/{workspace}/{repo_slug}/pipelines_config/variables/{variable_uuid}', 'repositories_workspace_repo_slug_pipelines_config_variables_variable_uuid');
+    $router->get('/repositories/{workspace}/{repo_slug}/properties/{app_key}/{property_name}', 'repositories_workspace_repo_slug_properties_app_key_property_name');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests', 'repositories_workspace_repo_slug_pullrequests');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/activity', 'repositories_workspace_repo_slug_pullrequests_activity');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}', 'repositories_workspace_repo_slug_pullrequests_pull_request_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/activity', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_activity');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/approve', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_approve');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/comments', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_comments');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/comments/{comment_id}', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_comments_comment_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/commits', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_commits');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/decline', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_decline');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/diff', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_diff');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/diffstat', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_diffstat');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/merge', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_merge');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/merge/task-status/{task_id}', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_merge_task_status_task_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/patch', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_patch');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/request-changes', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_request_changes');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/statuses', 'repositories_workspace_repo_slug_pullrequests_pull_request_id_statuses');
+    $router->get('/repositories/{workspace}/{repo_slug}/pullrequests/{pullrequest_id}/properties/{app_key}/{property_name}', 'repositories_workspace_repo_slug_pullrequests_pullrequest_id_properties_app_key_property_name');
+    $router->get('/repositories/{workspace}/{repo_slug}/refs', 'repositories_workspace_repo_slug_refs');
+    $router->get('/repositories/{workspace}/{repo_slug}/refs/branches', 'repositories_workspace_repo_slug_refs_branches');
+    $router->get('/repositories/{workspace}/{repo_slug}/refs/branches/{name}', 'repositories_workspace_repo_slug_refs_branches_name');
+    $router->get('/repositories/{workspace}/{repo_slug}/refs/tags', 'repositories_workspace_repo_slug_refs_tags');
+    $router->get('/repositories/{workspace}/{repo_slug}/refs/tags/{name}', 'repositories_workspace_repo_slug_refs_tags_name');
+    $router->get('/repositories/{workspace}/{repo_slug}/src', 'repositories_workspace_repo_slug_src');
+    $router->get('/repositories/{workspace}/{repo_slug}/src/{commit}/{path}', 'repositories_workspace_repo_slug_src_commit_path');
+    $router->get('/repositories/{workspace}/{repo_slug}/versions', 'repositories_workspace_repo_slug_versions');
+    $router->get('/repositories/{workspace}/{repo_slug}/versions/{version_id}', 'repositories_workspace_repo_slug_versions_version_id');
+    $router->get('/repositories/{workspace}/{repo_slug}/watchers', 'repositories_workspace_repo_slug_watchers');
+    $router->get('/snippets', 'snippets');
+    $router->get('/snippets/{workspace}', 'snippets_workspace');
+    $router->get('/snippets/{workspace}/{encoded_id}', 'snippets_workspace_encoded_id');
+    $router->get('/snippets/{workspace}/{encoded_id}/comments', 'snippets_workspace_encoded_id_comments');
+    $router->get('/snippets/{workspace}/{encoded_id}/comments/{comment_id}', 'snippets_workspace_encoded_id_comments_comment_id');
+    $router->get('/snippets/{workspace}/{encoded_id}/commits', 'snippets_workspace_encoded_id_commits');
+    $router->get('/snippets/{workspace}/{encoded_id}/commits/{revision}', 'snippets_workspace_encoded_id_commits_revision');
+    $router->get('/snippets/{workspace}/{encoded_id}/files/{path}', 'snippets_workspace_encoded_id_files_path');
+    $router->get('/snippets/{workspace}/{encoded_id}/watch', 'snippets_workspace_encoded_id_watch');
+    $router->get('/snippets/{workspace}/{encoded_id}/watchers', 'snippets_workspace_encoded_id_watchers');
+    $router->get('/snippets/{workspace}/{encoded_id}/{node_id}', 'snippets_workspace_encoded_id_node_id');
+    $router->get('/snippets/{workspace}/{encoded_id}/{node_id}/files/{path}', 'snippets_workspace_encoded_id_node_id_files_path');
+    $router->get('/snippets/{workspace}/{encoded_id}/{revision}/diff', 'snippets_workspace_encoded_id_revision_diff');
+    $router->get('/snippets/{workspace}/{encoded_id}/{revision}/patch', 'snippets_workspace_encoded_id_revision_patch');
+    $router->get('/teams', 'teams');
+    $router->get('/teams/{username}', 'teams_username');
+    $router->get('/teams/{username}/followers', 'teams_username_followers');
+    $router->get('/teams/{username}/following', 'teams_username_following');
+    $router->get('/teams/{username}/members', 'teams_username_members');
+    $router->get('/teams/{username}/permissions', 'teams_username_permissions');
+    $router->get('/teams/{username}/permissions/repositories', 'teams_username_permissions_repositories');
+    $router->get('/teams/{username}/permissions/repositories/{repo_slug}', 'teams_username_permissions_repositories_repo_slug');
+    $router->get('/teams/{username}/pipelines_config/variables/', 'teams_username_pipelines_config_variables');
+    $router->get('/teams/{username}/pipelines_config/variables/{variable_uuid}', 'teams_username_pipelines_config_variables_variable_uuid');
+    $router->get('/teams/{username}/projects/', 'teams_username_projects');
+    $router->get('/teams/{username}/projects/{project_key}', 'teams_username_projects_project_key');
+    $router->get('/teams/{username}/search/code', 'teams_username_search_code');
+    $router->get('/teams/{workspace}/repositories', 'teams_workspace_repositories');
+    $router->get('/user', 'user');
+    $router->get('/user/emails', 'user_emails');
+    $router->get('/user/emails/{email}', 'user_emails_email');
+    $router->get('/user/permissions/repositories', 'user_permissions_repositories');
+    $router->get('/user/permissions/teams', 'user_permissions_teams');
+    $router->get('/user/permissions/workspaces', 'user_permissions_workspaces');
+    $router->get('/users/{selected_user}', 'users_selected_user');
+    $router->get('/users/{selected_user}/pipelines_config/variables/', 'users_selected_user_pipelines_config_variables');
+    $router->get('/users/{selected_user}/pipelines_config/variables/{variable_uuid}', 'users_selected_user_pipelines_config_variables_variable_uuid');
+    $router->get('/users/{selected_user}/properties/{app_key}/{property_name}', 'users_selected_user_properties_app_key_property_name');
+    $router->get('/users/{selected_user}/search/code', 'users_selected_user_search_code');
+    $router->get('/users/{selected_user}/ssh-keys', 'users_selected_user_ssh_keys');
+    $router->get('/users/{selected_user}/ssh-keys/{key_id}', 'users_selected_user_ssh_keys_key_id');
+    $router->get('/users/{username}/members', 'users_username_members');
+    $router->get('/users/{workspace}/repositories', 'users_workspace_repositories');
+    $router->get('/workspaces', 'workspaces');
+    $router->get('/workspaces/{workspace}', 'workspaces_workspace');
+    $router->get('/workspaces/{workspace}/hooks', 'workspaces_workspace_hooks');
+    $router->get('/workspaces/{workspace}/hooks/{uid}', 'workspaces_workspace_hooks_uid');
+    $router->get('/workspaces/{workspace}/members', 'workspaces_workspace_members');
+    $router->get('/workspaces/{workspace}/members/{member}', 'workspaces_workspace_members_member');
+    $router->get('/workspaces/{workspace}/permissions', 'workspaces_workspace_permissions');
+    $router->get('/workspaces/{workspace}/permissions/repositories', 'workspaces_workspace_permissions_repositories');
+    $router->get('/workspaces/{workspace}/permissions/repositories/{repo_slug}', 'workspaces_workspace_permissions_repositories_repo_slug');
+    $router->get('/workspaces/{workspace}/pipelines-config/identity/oidc/.well-known/openid-configuration', 'workspaces_workspace_pipelines_config_identity_oidc_well_known_openid_configuration');
+    $router->get('/workspaces/{workspace}/pipelines-config/identity/oidc/keys.json', 'workspaces_workspace_pipelines_config_identity_oidc_keys_json');
+    $router->get('/workspaces/{workspace}/pipelines-config/variables', 'workspaces_workspace_pipelines_config_variables');
+    $router->get('/workspaces/{workspace}/pipelines-config/variables/{variable_uuid}', 'workspaces_workspace_pipelines_config_variables_variable_uuid');
+    $router->get('/workspaces/{workspace}/projects', 'workspaces_workspace_projects');
+    $router->get('/workspaces/{workspace}/projects/{project_key}', 'workspaces_workspace_projects_project_key');
+    $router->get('/workspaces/{workspace}/search/code', 'workspaces_workspace_search_code');
+
+    $total_build_time += microtime(true) - $test_time_start;
+    $total_build_memory += (memory_get_usage() - $test_mem_start)/1048576;
+
+    $route_mem_start = memory_get_usage();
+    $route_time_start = microtime(true);
+
+    $route = $router->route('GET', '/repositories/ringo/john/pipelines/paul/steps/george/test_reports/test_cases/ringo/test_case_reasons');
+
+    $total_route_time += microtime(true) - $route_time_start;
+    $total_route_memory += (memory_get_usage() - $route_mem_start)/1048576;
+
+}
+
+echo "Build Time = " .  sprintf('%.8f',$total_build_time/$iterations) . " seconds\n";
+echo "Build Memory = " . sprintf('%.8f',($total_build_memory/$iterations)) . " MB\n";
+echo "Route Time = " .  sprintf('%.8f',$total_route_time/$iterations) . " seconds\n";
+echo "Route Memory = " . sprintf('%.8f',($total_route_memory/$iterations)) . " MB\n";
 print_r($route);
