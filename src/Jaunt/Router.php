@@ -31,13 +31,20 @@ class Router
         return $this;
     }
 
+    /**
+     * Add a route to the router
+     * @param string $method
+     * @param string $path
+     * @param callable $callback
+     * @return $this
+     */
     public function addRoute($method, $path, $callback): Router {
         $this->current =& $this->root;
         $parts = explode('/', $path);
         $parts_count = count($parts);
         $offset = ($parts_count > 1 && empty($parts[0])) ? 1 : 0;
         for ($i=$offset; $i < $parts_count; $i++) {
-            if (!empty($parts[$i][0]) && $parts[$i][0] == ':') {
+            if (!empty($parts[$i][0]) && $parts[$i][0] == '{') {
                 $this->addParam($parts[$i]);
             } else {
                 $this->addSegment($parts[$i]);
@@ -49,12 +56,12 @@ class Router
 
     /**
      * Add a callback to the current node
-     * @param $method
-     * @param $callback
+     * @param string $method
+     * @param callable $callback
      * @return void
      */
     protected function addCallback($method, $callback) {
-        if ($method == 'USE') {
+        if ($method === 'USE') {
             $this->current['{middleware}'][] = $callback;
         } else {
             $this->current['{controllers}'][] = [$method,$callback];
@@ -86,12 +93,11 @@ class Router
 
     /**
      * Returns the route that matches the provided method and path
-     * @param $method
-     * @param $path
+     * @param string $method
+     * @param string $path
      * @return array|null
      */
-    public function route($method, $path)
-    {
+    public function route($method, $path) {
         $parts = array_reverse(explode('/', $path));
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
@@ -105,7 +111,7 @@ class Router
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current['{param}']) || isset($current['{param_name}'])) {
-                $route['params'][substr($current['{param_name}'], 1)] =  $part;
+                $route['params'][substr($current['{param_name}'], 1, -1)] =  $part;
                 $current = $current['{param}'];
             } else {
                 return null;
@@ -116,9 +122,9 @@ class Router
         }
         $matched = false;
         if (isset($current["{controllers}"])) {
-            foreach ($current["{controllers}"] as $callback) {
-                if ($callback[0] == 'ALL' || strpos($callback[0], $method) !== false) {
-                    $route['stack'][] = $callback[1];
+            foreach ($current["{controllers}"] as $controller) {
+                if ('ALL' === $controller[0] || strpos($controller[0], $method) !== false) {
+                    $route['stack'][] = $controller[1];
                     $matched = true;
                 }
             }
