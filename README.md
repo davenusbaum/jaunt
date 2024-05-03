@@ -8,6 +8,10 @@ finding a route by building and walking a tree based structure
 rather than iterating over a list of regular expressed based
 route definitions.
 
+Jaunt was [benchmarked](https://github.com/davenusbaum/benchmark-php-routing/tree/jaunt)
+using the excellent [benchmark-php-routing](https://github.com/kktsvetkov/benchmark-php-routing) 
+package created by [Kaloyan Tsvetkov](https://github.com/kktsvetkov).  
+
 ## Create a router
 Creating a router is simple.
 ```
