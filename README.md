@@ -31,8 +31,8 @@ Dynamic routes can include placeholders wrapped in `{}`.
 ```
 $router = (new Router())
     ->get('/api/account', 'get_all_accounts_handler');
-    ->get('/api/account/{id}', 'get_account_handler');
-    ->get('/api/account/{id}/users', 'get_account_users_handler');
+    ->get('/api/account/:id', 'get_account_handler');
+    ->get('/api/account/:id/users', 'get_account_users_handler');
 ```
 ## Add middleware
 Middleware can be added to any point in a route.
@@ -41,8 +41,8 @@ $router = (new Router())
     ->use('/api/', 'auth_middleware')
     ->use('/api/account', 'account_access_middleware')
     ->get('/api/account', 'get_all_accounts_handler');
-    ->get('/api/account/{id}', 'get_account_handler');
-    ->get('/api/account/{id}/users', 'get_account_users_handler');
+    ->get('/api/account/:id', 'get_account_handler');
+    ->get('/api/account/:id/users', 'get_account_users_handler');
 ```
 ## Find a route
 The `route` method returns an array of route information
@@ -60,8 +60,8 @@ $router = (new Router())
     ->use('/api/', 'auth_middleware')
     ->use('/api/account', 'account_access_middleware')
     ->get('/api/account', 'get_all_accounts_handler');
-    ->get('/api/account/{id}', 'get_account_handler');
-    ->get('/api/account/{id}/users', 'get_account_users_handler');
+    ->get('/api/account/:id', 'get_account_handler');
+    ->get('/api/account/:id/users', 'get_account_users_handler');
 // get the resulting route tree
 $routeTree = $router->getRouteTree();
 // cache the route tree in a php file
@@ -85,8 +85,8 @@ $router = (new Router())
     ->use('/api/', 'auth_middleware')
     ->use('/api/account', 'account_access_middleware')
     ->get('/api/account', 'get_all_accounts_handler');
-    ->get('/api/account/{id}', 'get_account_handler');
-    ->get('/api/account/{id}/users', 'get_account_users_handler');
+    ->get('/api/account/:id', 'get_account_handler');
+    ->get('/api/account/:id/users', 'get_account_users_handler');
 
 
 // Fetch method and URI from somewhere
