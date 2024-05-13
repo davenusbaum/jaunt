@@ -11,25 +11,75 @@ class Router
     protected $current = null;
     protected $root = [];
 
+    /**
+     * Create a router
+     * @param $tree Optional predefined route tree
+     */
     public function __construct($tree = []) {
         $this->root = $tree;
     }
 
+    /**
+     * Add a route that is used for all HTTP methods
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
     public function all($path, $callback): Router {
         $this->addRoute('ALL', $path, $callback);
         return $this;
     }
 
+    /**
+     * Add a route to handle a DELETE request
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
+    public function delete($path, $callback): Router {
+        $this->addRoute('DELETE',$path, $callback);
+        return $this;
+    }
+
+    /**
+     * Add a route to handle a HTTP GET
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
     public function get($path, $callback): Router {
         $this->addRoute('GET', $path, $callback);
         return $this;
     }
 
+    /**
+     * Add a route to handle a POST request
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
     public function post($path, $callback): Router {
         $this->addRoute('POST',$path, $callback);
         return $this;
     }
 
+    /**
+     * Add a route to handle a PUT request
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
+    public function put($path, $callback): Router {
+        $this->addRoute('PUT',$path, $callback);
+        return $this;
+    }
+
+    /**
+     * Add middleware to be used for a specific route
+     * @param $path
+     * @param $callback
+     * @return $this
+     */
     public function use($path, $callback): Router {
         $this->addRoute('USE', $path, $callback);
         return $this;
@@ -42,13 +92,13 @@ class Router
      * @param callable $callback
      * @return $this
      */
-    public function addRoute($method, $path, $callback): Router {
+    protected function addRoute($method, $path, $callback): Router {
         $this->current =& $this->root;
         $parts = explode('/', $path);
         $parts_count = count($parts);
         $offset = ($parts_count > 1 && empty($parts[0])) ? 1 : 0;
         for ($i=$offset; $i < $parts_count; $i++) {
-            if (!empty($parts[$i][0]) && $parts[$i][0] == '{') {
+            if (!empty($parts[$i][0]) && $parts[$i][0] == ':') {
                 $this->addParam($parts[$i]);
             } else {
                 $this->addSegment($parts[$i]);
@@ -72,6 +122,11 @@ class Router
         }
     }
 
+    /**
+     * Add a dynamic parameter to the current route
+     * @param $param
+     * @return void
+     */
     protected function addParam($param){
         if (!isset($this->current[self::PARAM_NEXT])) {
             $this->current[self::PARAM_NEXT] = [];
@@ -80,6 +135,11 @@ class Router
         $this->current =& $this->current[self::PARAM_NEXT];
     }
 
+    /**
+     * Add a static segment to the current route
+     * @param $segment
+     * @return void
+     */
     protected function addSegment($segment) {
         if (!isset($this->current[$segment])) {
             $this->current[$segment] = [];
@@ -101,7 +161,7 @@ class Router
      * @param string $path
      * @return array|null
      */
-    public function route($method, $path) {
+    public function find($method, $path) {
         $parts = array_reverse(explode('/', $path));
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
@@ -115,7 +175,7 @@ class Router
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current[self::PARAM_NEXT]) || isset($current[self::PARAM_NAME])) {
-                $route['params'][substr($current[self::PARAM_NAME], 1, -1)] =  $part;
+                $route['params'][substr($current[self::PARAM_NAME], 1)] =  $part;
                 $current = $current[self::PARAM_NEXT];
             } else {
                 return null;
@@ -127,7 +187,7 @@ class Router
         $matched = false;
         if (isset($current[self::CONTROLLERS])) {
             foreach ($current[self::CONTROLLERS] as $controller) {
-                if ('ALL' === $controller[0] || strpos($controller[0], $method) !== false) {
+                if ('ALL' === $controller[0] || $controller[0] == $method) {
                     $route['stack'][] = $controller[1];
                     $matched = true;
                 }
