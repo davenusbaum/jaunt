@@ -26,7 +26,7 @@ class Router
      * @return $this
      */
     public function all($path, $callback): Router {
-        $this->addRoute('ALL', $path, $callback);
+        $this->add('ALL', $path, $callback);
         return $this;
     }
 
@@ -37,7 +37,7 @@ class Router
      * @return $this
      */
     public function delete($path, $callback): Router {
-        $this->addRoute('DELETE',$path, $callback);
+        $this->add('DELETE',$path, $callback);
         return $this;
     }
 
@@ -48,7 +48,7 @@ class Router
      * @return $this
      */
     public function get($path, $callback): Router {
-        $this->addRoute('GET', $path, $callback);
+        $this->add('GET', $path, $callback);
         return $this;
     }
 
@@ -59,7 +59,7 @@ class Router
      * @return $this
      */
     public function post($path, $callback): Router {
-        $this->addRoute('POST',$path, $callback);
+        $this->add('POST',$path, $callback);
         return $this;
     }
 
@@ -70,7 +70,7 @@ class Router
      * @return $this
      */
     public function put($path, $callback): Router {
-        $this->addRoute('PUT',$path, $callback);
+        $this->add('PUT',$path, $callback);
         return $this;
     }
 
@@ -81,7 +81,7 @@ class Router
      * @return $this
      */
     public function use($path, $callback): Router {
-        $this->addRoute('USE', $path, $callback);
+        $this->add('USE', $path, $callback);
         return $this;
     }
 
@@ -92,7 +92,7 @@ class Router
      * @param callable $callback
      * @return $this
      */
-    protected function addRoute($method, $path, $callback): Router {
+    public function add($method, $path, $callback): Router {
         $this->current =& $this->root;
         $parts = explode('/', $path);
         $parts_count = count($parts);
@@ -111,7 +111,7 @@ class Router
     /**
      * Add a callback to the current node
      * @param string $method
-     * @param callable $callback
+     * @param callable|callable[] $callback
      * @return void
      */
     protected function addCallback($method, $callback) {
@@ -166,29 +166,30 @@ class Router
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
         }
-        $route = [
-            'stack' => [],
-            'params' => []
-        ];
+        $route = new Route();
         $current = $this->root;
         while (($part = array_pop($parts)) !== null) {
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current[self::PARAM_NEXT]) || isset($current[self::PARAM_NAME])) {
-                $route['params'][substr($current[self::PARAM_NAME], 1)] =  $part;
+                $route->params[substr($current[self::PARAM_NAME], 1)] =  $part;
                 $current = $current[self::PARAM_NEXT];
             } else {
                 return null;
             }
             if (isset($current[self::MIDDLEWARE])) {
-                array_push($route['stack'], $current[self::MIDDLEWARE]);
+                foreach ($current[self::MIDDLEWARE] as $middleware) {
+                    $route->stack[] = $middleware;
+                }
             }
         }
         $matched = false;
         if (isset($current[self::CONTROLLERS])) {
             foreach ($current[self::CONTROLLERS] as $controller) {
-                if ('ALL' === $controller[0] || $controller[0] == $method) {
-                    $route['stack'][] = $controller[1];
+                if ('ALL' === $controller[0] || stripos($controller[0], strtoupper($method)) !== FALSE) {
+                    if (!in_array($controller[1], $route->stack)) {
+                        $route->stack[] = $controller[1];
+                    }
                     $matched = true;
                 }
             }

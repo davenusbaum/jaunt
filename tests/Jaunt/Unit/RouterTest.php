@@ -2,6 +2,7 @@
 
 namespace Jaunt\Unit;
 
+use Jaunt\Route;
 use \PHPUnit\Framework\TestCase;
 use Jaunt\Router;
 
@@ -12,15 +13,11 @@ class RouterTest extends TestCase
         $router->get("/", 'trim');
         $router->get('/api/tests/:id/content', [ArrayObject::class, 'count']);
         $router->use('/api/tests', 'fake_middleware_function');
-        print_r($router);
 
-        $route = $router->route('get', "/api/tests/123/content");
-        var_dump($route);
+        $this->assertInstanceOf(Router::class, $router);
     }
 
-    public function testBigRoute() {
-        $test_mem_start = memory_get_usage ();
-        $test_time_start = microtime ( true );
+    public function testRoute() {
         $router = (new Router())
             ->get('null', 'FrontPage')
             ->get('account/:account_id', 'Account')
@@ -33,8 +30,24 @@ class RouterTest extends TestCase
             ->get('badges/:account_id', 'Badges')
             ->get('badges/:account_id/progress', 'Badges');
 
-        $router->route('GET', 'badges/49728/progress');
-        echo "Time required = " . (microtime ( true ) - $test_time_start) . " seconds\n";
-        echo "Memory required = " . sprintf('%.2f',((memory_get_usage () - $test_mem_start)/1048576)) . " MB\n";
+        $route = $router->find('GET', 'badges/49728/progress');
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertEquals('Badges',$route->stack[0]);
+        $this->assertEquals('49728',$route->params['account_id']);
+    }
+
+    public function testStackedCallbacks() {
+        $router = (new Router())
+            ->get('null', 'FrontPage')
+            ->use('user','Auth')
+            ->post('user/account/:account_id', 'PostAccount')
+            ->add('POST|GET', 'user/account/:account_id', 'AccountForm')
+            ->get('user/account/:account_id', 'AccountForm')
+            ->use('user/account', 'AccountAccess');
+
+        $route = $router->find('POST', 'user/account/12345');
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertEquals(['Auth','AccountAccess','PostAccount','AccountForm'],$route->stack);
+        $this->assertEquals('12345',$route->params['account_id']);
     }
 }
