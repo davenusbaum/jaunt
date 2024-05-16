@@ -166,20 +166,23 @@ class Router
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
         }
-        $route = new Route();
+        $route = [
+            'stack' => [],
+            'params' => []
+        ];
         $current = $this->root;
         while (($part = array_pop($parts)) !== null) {
             if (isset($current[$part])) {
                 $current = $current[$part];
             } else if (isset($current[self::PARAM_NEXT]) || isset($current[self::PARAM_NAME])) {
-                $route->params[substr($current[self::PARAM_NAME], 1)] =  $part;
+                $route['params'][substr($current[self::PARAM_NAME], 1)] =  $part;
                 $current = $current[self::PARAM_NEXT];
             } else {
                 return null;
             }
             if (isset($current[self::MIDDLEWARE])) {
                 foreach ($current[self::MIDDLEWARE] as $middleware) {
-                    $route->stack[] = $middleware;
+                    $route['stack'][] = $middleware;
                 }
             }
         }
