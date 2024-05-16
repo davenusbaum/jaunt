@@ -191,7 +191,7 @@ class Router
             foreach ($current[self::CONTROLLERS] as $controller) {
                 if ('ALL' === $controller[0] || stripos($controller[0], strtoupper($method)) !== FALSE) {
                     if (!in_array($controller[1], $route['stack'])) {
-                        $route->stack[] = $controller[1];
+                        $route['stack'][] = $controller[1];
                     }
                     $matched = true;
                 }
