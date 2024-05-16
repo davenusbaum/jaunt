@@ -31,9 +31,9 @@ class RouterTest extends TestCase
             ->get('badges/:account_id/progress', 'Badges');
 
         $route = $router->find('GET', 'badges/49728/progress');
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals('Badges',$route->stack[0]);
-        $this->assertEquals('49728',$route->params['account_id']);
+        $this->assertIsArray($route);
+        $this->assertEquals('Badges',$route['stack'][0]);
+        $this->assertEquals('49728',$route['params']['account_id']);
     }
 
     public function testStackedCallbacks() {
@@ -46,8 +46,8 @@ class RouterTest extends TestCase
             ->use('user/account', 'AccountAccess');
 
         $route = $router->find('POST', 'user/account/12345');
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['Auth','AccountAccess','PostAccount','AccountForm'],$route->stack);
-        $this->assertEquals('12345',$route->params['account_id']);
+        $this->assertIsArray($route);
+        $this->assertEquals(['Auth','AccountAccess','PostAccount','AccountForm'],$route['stack']);
+        $this->assertEquals('12345',$route['params']['account_id']);
     }
 }
