@@ -30,24 +30,22 @@ class RouterTest extends TestCase
             ->get('badges/:account_id', 'Badges')
             ->get('badges/:account_id/progress', 'Badges');
 
-        $route = $router->find('GET', 'badges/49728/progress');
+        $route = $router->match('GET', 'badges/49728/progress');
         $this->assertIsArray($route);
         $this->assertEquals('Badges',$route['stack'][0]);
         $this->assertEquals('49728',$route['params']['account_id']);
     }
 
-    public function testStackedCallbacks() {
+    public function testMultipleCallbacks() {
         $router = (new Router())
             ->get('null', 'FrontPage')
             ->use('user','Auth')
-            ->post('user/account/:account_id', 'PostAccount')
-            ->add('POST|GET', 'user/account/:account_id', 'AccountForm')
-            ->get('user/account/:account_id', 'AccountForm')
-            ->use('user/account', 'AccountAccess');
+            ->post('user/account/:account_id', ['AccountAccess','PostAccount']);
 
-        $route = $router->find('POST', 'user/account/12345');
+        $route = $router->match('POST', 'user/account/12345');
         $this->assertIsArray($route);
-        $this->assertEquals(['Auth','AccountAccess','PostAccount','AccountForm'],$route['stack']);
+        $this->assertEquals(['Auth','AccountAccess','PostAccount'],$route['stack']);
         $this->assertEquals('12345',$route['params']['account_id']);
+        $this->assertEquals('user/account/:account_id',$route['path']);
     }
 }

@@ -104,7 +104,13 @@ class Router
                 $this->addSegment($parts[$i]);
             }
         }
-        $this->addCallback($method, $callback);
+        if (is_array($callback)) {
+            foreach ($callback as $value) {
+                $this->addCallback($method, $value);
+            }
+        } else {
+            $this->addCallback($method, $callback);
+        }
         return $this;
     }
 
@@ -161,12 +167,13 @@ class Router
      * @param string $path
      * @return array|null
      */
-    public function find($method, $path) {
+    public function match($method, $path) {
         $parts = array_reverse(explode('/', $path));
         if (count($parts) > 1 && empty(end($parts))) {
             array_pop($parts);
         }
         $route = [
+            'path' => [],
             'stack' => [],
             'params' => []
         ];
@@ -174,8 +181,10 @@ class Router
         while (($part = array_pop($parts)) !== null) {
             if (isset($current[$part])) {
                 $current = $current[$part];
+                $route['path'][] = $part;
             } else if (isset($current[self::PARAM_NEXT]) || isset($current[self::PARAM_NAME])) {
                 $route['params'][substr($current[self::PARAM_NAME], 1)] =  $part;
+                $route['path'][] = $current[self::PARAM_NAME];
                 $current = $current[self::PARAM_NEXT];
             } else {
                 return null;
@@ -189,13 +198,14 @@ class Router
         $matched = false;
         if (isset($current[self::CONTROLLERS])) {
             foreach ($current[self::CONTROLLERS] as $controller) {
-                if ('ALL' === $controller[0] || stripos($controller[0], strtoupper($method)) !== FALSE) {
+                if ('ALL' === $controller[0] || $method === $controller[0]) {
                     $route['stack'][] = $controller[1];
                     $matched = true;
                 }
             }
         }
         if ($matched) {
+            $route['path'] = implode('/', $route['path']);
            return $route;
         }
         return null;
