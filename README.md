@@ -23,10 +23,12 @@ $router = new Router();
 ```
 
 ## Add routes
-Router are added by using the appropriate class method for the HTTP method
+Routes are added by using the the router method that matches the HTTP requeat method
 and providing a path and route destination.
-The meaning of the route destination is open, the goal of the router is
-to find and return the destination.
+The meaning of the route destination is open to your needs,
+it could be a closure, a class name or whatever is required.
+The goal of the router is
+to find and return the destination based on the path provided.
 Dynamic routes can include placeholders wrapped in `{}`.
 ```
 $router = (new Router())
